@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HellHub - Official Video Streaming Portal</title>
+    <style>
+        :root {
+            --accent-color: #ff2e4c;
+            --card-bg: #14161f;
+            --header-bg: #0c0e14;
+            --text-main: #ffffff;
+            --text-muted: #b2bec3;
+            --border-color: #2f3542;
+            --glow-yellow: #ffcc00;
+            --glow-orange: #ff6600;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0b0c10;
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 50px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ========================================= */
+        /* 8-SECOND AUTO INTRO VIDEO OVERLAY         */
+        /* ========================================= */
+        #intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            background: #000000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #intro-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        #intro-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+
+        /* ========================================= */
+        /* HEADER: LOGO & NAVIGATION TABS            */
+        /* ========================================= */
+        header {
+            background: var(--header-bg);
+            border-bottom: 2px solid var(--accent-color);
+            padding: 10px 15px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .site-logo {
+            height: 38px;
+            width: auto;
+            border-radius: 6px;
+            object-fit: contain;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav ul li a {
+            display: inline-block;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 46, 76, 0.4);
+            padding: 5px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 12.5px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        nav ul li a:hover,
+        nav ul li a.active-tab {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #ffffff;
+        }
+
+        /* ========================================= */
+        /* MAIN CONTAINER & GLOWING 3 TABS           */
+        /* ========================================= */
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .notice-banner {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 46, 76, 0.3);
+            border-left: 4px solid var(--accent-color);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .notice-banner strong {
+            color: #ff5268;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px rgba(255, 170, 0, 0.45), inset 0 0 6px rgba(255, 204, 0, 0.2); }
+            50% { box-shadow: 0 0 22px rgba(255, 119, 0, 0.85), inset 0 0 10px rgba(255, 215, 0, 0.4); }
+            100% { box-shadow: 0 0 10px rgba(255, 170, 0, 0.45), inset 0 0 6px rgba(255, 204, 0, 0.2); }
+        }
+
+        .main-mode-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 22px;
+            background: linear-gradient(180deg, #1b1710 0%, #12100c 100%);
+            padding: 12px;
+            border-radius: 14px;
+            border: 2px solid #ff9900;
+            animation: pulseGlow 2.4s infinite ease-in-out;
+        }
+
+        .mode-tab-btn {
+            padding: 14px 8px;
+            border-radius: 10px;
+            border: 2px solid #ffaa00;
+            background: linear-gradient(135deg, rgba(255, 187, 0, 0.22), rgba(255, 94, 0, 0.28));
+            color: #ffd700;
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-align: center;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .mode-tab-btn:hover {
+            background: linear-gradient(135deg, #ffbb00, #ff6600);
+            color: #000000;
+            text-shadow: none;
+            transform: translateY(-1px);
+        }
+
+        .mode-tab-btn.active {
+            background: linear-gradient(135deg, #ffd000 0%, #ff7300 100%);
+            border-color: #ffffff;
+            color: #000000;
+            text-shadow: none;
+            box-shadow: 0 0 18px rgba(255, 166, 0, 0.9);
+            transform: scale(1.02);
+        }
+
+        /* ========================================= */
+        /* SECTION 1: VIDEOS TAB                     */
+        /* ========================================= */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 9px 14px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.4);
+            color: #ffffff;
+            font-size: 13.5px;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .filter-btn {
+            padding: 9px 14px;
+            border-radius: 7px;
+            border: 1px solid var(--accent-color);
+            background: rgba(255, 46, 76, 0.15);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--accent-color);
+        }
+
+        .video-feed {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 22px;
+        }
+
+        .video-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .video-header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .video-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .video-meta {
+            font-size: 11.5px;
+            color: var(--text-muted);
+        }
+
+        .save-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            padding: 5px 11px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .save-btn.saved {
+            background: #2ed573;
+            border-color: #2ed573;
+            color: #000000;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            background: #000000;
+        }
+
+        video {
+            width: 100%;
+            max-height: 480px;
+            display: block;
+            outline: none;
+        }
+
+        /* ========================================= */
+        /* SECTION 2: CHOOSE WIFE / FRIENDS (96)     */
+        /* ========================================= */
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 14px;
+            margin-top: 10px;
+        }
+
+        @media (min-width: 600px) {
+            .friends-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .friend-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+        }
+
+        .friend-img-wrapper {
+            width: 100%;
+            background: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        .friend-img-wrapper img {
+            width: 100%;
+            height: auto;
+            max-height: 340px;
+            object-fit: contain;
+            display: block;
+            border-radius: 6px;
+        }
+
+        .talk-btn {
+            width: 100%;
+            padding: 11px 8px;
+            background: var(--accent-color);
+            border: none;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: background 0.2s;
+        }
+
+        .talk-btn:hover {
+            background: #e01e3c;
+        }
+
+        /* ========================================= */
+        /* FULL SCREEN REFERRAL POPUP MODAL          */
+        /* ========================================= */
+        #referral-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            background: rgba(0, 0, 0, 0.94);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #referral-modal.active {
+            display: flex;
+        }
+
+        .referral-box {
+            background: #14161f;
+            border: 2px solid var(--accent-color);
+            border-radius: 16px;
+            max-width: 560px;
+            width: 100%;
+            padding: 28px 22px;
+            text-align: center;
+            box-shadow: 0 0 35px rgba(255, 46, 76, 0.45);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .referral-big-text {
+            font-size: 19px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.45;
+            text-transform: uppercase;
+        }
+
+        .referral-big-text span.highlight-gold {
+            color: #ffd32a;
+            font-size: 22px;
+        }
+
+        .referral-big-text span.highlight-red {
+            color: #ff4757;
+        }
+
+        .progress-container {
+            width: 100%;
+            background: #2f3542;
+            border-radius: 25px;
+            height: 28px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff2e4c, #2ed573);
+            transition: width 0.35s ease;
+        }
+
+        .progress-label {
+            font-size: 16px;
+            font-weight: 800;
+            color: #2ed573;
+        }
+
+        .share-link-box {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .share-wrapper {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .share-url-input {
+            flex: 1;
+            padding: 11px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #0b0c10;
+            color: #00d2d3;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            outline: none;
+        }
+
+        .copy-btn {
+            padding: 0 18px;
+            border-radius: 8px;
+            border: none;
+            background: #ffaa00;
+            color: #000000;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #ffd000;
+        }
+
+        .share-now-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            background: #2ed573;
+            color: #000000;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(46, 213, 115, 0.4);
+        }
+
+        .share-now-btn:active {
+            transform: scale(0.98);
+        }
+
+        .close-modal-x {
+            margin-top: 6px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #ff2e4c;
+            border: 2px solid #ffffff;
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ========================================= */
+        /* SECTION 3: FULL-SCREEN REELS VIEWER       */
+        /* ========================================= */
+        #reels-fullscreen-view {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            background: #000000;
+            z-index: 9500;
+        }
+
+        #reels-fullscreen-view.active {
+            display: block;
+        }
+
+        .reels-top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 14px 16px;
+            z-index: 9600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+            pointer-events: none;
+        }
+
+        .reels-back-btn {
+            pointer-events: auto;
+            background: rgba(20, 22, 31, 0.85);
+            color: #ffffff;
+            border: 1.5px solid #ffaa00;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(6px);
+        }
+
+        .reels-badge {
+            color: #ffd000;
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+        }
+
+        .reels-feed-container {
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .reels-feed-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .reel-slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            position: relative;
+            background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .reel-slide video {
+            width: 100%;
+            height: 100%;
+            max-height: 100dvh;
+            object-fit: cover;
+            background: #000000;
+        }
+
+        @media (min-width: 768px) {
+            .reel-slide video {
+                max-width: 460px;
+                object-fit: contain;
+            }
+        }
+
+        .reel-center-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.65);
+            color: #ffffff;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .reel-center-icon.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .reel-side-actions {
+            position: absolute;
+            right: 14px;
+            bottom: 95px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            z-index: 9600;
+            align-items: center;
+        }
+
+        .reel-action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.9);
+        }
+
+        .reel-action-circle {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(20, 22, 31, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: transform 0.15s ease, background 0.2s ease;
+        }
+
+        .reel-action-btn:active .reel-action-circle {
+            transform: scale(0.9);
+        }
+
+        .reel-action-btn.liked .reel-action-circle {
+            background: rgba(255, 46, 76, 0.9);
+            border-color: #ff2e4c;
+        }
+
+        .reel-action-label {
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .reel-bottom-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 40px 75px 22px 16px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .reel-creator-tag {
+            display: inline-block;
+            background: rgba(255, 170, 0, 0.2);
+            border: 1px solid #ffaa00;
+            color: #ffd000;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+        }
+
+        .reel-bottom-gradient h4 {
+            font-size: 15.5px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 3px;
+        }
+
+        .reel-bottom-gradient p {
+            font-size: 12px;
+            color: #dcdde1;
+        }
+
+        .reel-progress-track {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3.5px;
+            background: rgba(255, 255, 255, 0.25);
+            z-index: 9650;
+        }
+
+        .reel-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ffd000, #ff2e4c);
+            transition: width 0.1s linear;
+        }
+
+        /* ========================================= */
+        /* LEGAL SECTIONS & FOOTER                   */
+        /* ========================================= */
+        .legal-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 18px;
+            border-radius: 10px;
+            margin-top: 25px;
+            font-size: 13.5px;
+            color: var(--text-muted);
+        }
+
+        .legal-section h2 {
+            color: #ffffff;
+            font-size: 17px;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(255, 46, 76, 0.4);
+            display: inline-block;
+        }
+
+        footer {
+            max-width: 900px;
+            margin: 40px auto 15px auto;
+            padding: 18px 15px;
+            background: var(--header-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .footer-links {
+            margin-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .footer-links a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 4px 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 12px;
+        }
+
+        .footer-links a:hover {
+            border-color: var(--accent-color);
+            background: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 8-Second Intro Video -->
+    <div id="intro-overlay">
+        <video id="intro-video" autoplay muted playsinline preload="auto">
+            <source src="https://files.catbox.moe/l2dyvo.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <a href="#home" class="brand-box" onclick="switchMainTab('videos')">
+            <img src="https://raw.githubusercontent.com/827vzizb/Pubg7666w/refs/heads/main/IMG-20261115-WA7862.jpg" alt="HellHub Logo" class="site-logo">
+        </a>
+        <nav>
+            <ul>
+                <li><a href="#home" class="active-tab" onclick="switchMainTab('videos')">Home</a></li>
+                <li><a href="#disclaimer">Disclaimer</a></li>
+                <li><a href="#privacy">Privacy</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container" id="home">
+        
+        <div class="notice-banner">
+            <strong>18+ Age Warning &amp; Disclaimer:</strong> This website contains age-restricted adult content intended strictly for individuals 18 years of age or older.
+        </div>
+
+        <!-- 3 Tabs -->
+        <div class="main-mode-tabs">
+            <button class="mode-tab-btn active" id="tab-videos-btn" onclick="switchMainTab('videos')">Videos</button>
+            <button class="mode-tab-btn" id="tab-friends-btn" onclick="switchMainTab('friends')">Choose Wife 👄</button>
+            <button class="mode-tab-btn" id="tab-reels-btn" onclick="switchMainTab('reels')">Reels</button>
+        </div>
+
+        <!-- TAB 1: VIDEOS -->
+        <div id="videos-section">
+            <div class="toolbar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search videos by title..." onkeyup="filterVideos()">
+                <button class="filter-btn active" id="allBtn" onclick="showAllVideos()">All Videos</button>
+                <button class="filter-btn" id="savedBtn" onclick="showSavedVideos()">Saved</button>
+            </div>
+
+            <div class="video-feed" id="videoFeed">
+                <div class="video-card" data-id="vid-1">
+                    <div class="video-header">
+                        <div>
+                            <h3 class="video-title">Exclusive Stream Release #01</h3>
+                            <span class="video-meta">HD Stream • Added Recently</span>
+                        </div>
+                        <button class="save-btn" onclick="toggleSave('vid-1', this)">Save</button>
+                    </div>
+                    <div class="video-container">
+                        <video controls controlslist="nodownload" preload="auto">
+                            <source src="https://files.catbox.moe/4yjzug.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-card" data-id="vid-2">
+                    <div class="video-header">
+                        <div>
+                            <h3 class="video-title">Featured Trending Clip #02 (Latest)</h3>
+                            <span class="video-meta">HD Stream • Just Added</span>
+                        </div>
+                        <button class="save-btn" onclick="toggleSave('vid-2', this)">Save</button>
+                    </div>
+                    <div class="video-container">
+                        <video controls controlslist="nodownload" preload="auto">
+                            <source src="https://files.catbox.moe/ltbjhi.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-card" data-id="vid-3">
+                    <div class="video-header">
+                        <div>
+                            <h3 class="video-title">Yamina Khan amd her Younger sister Story Fucked Trending(Latest)</h3>
+                            <span class="video-meta">HD Stream • Just Added</span>
+                        </div>
+                        <button class="save-btn" onclick="toggleSave('vid-3', this)">Save</button>
+                    </div>
+                    <div class="video-container">
+                        <video controls controlslist="nodownload" preload="auto">
+                            <source src="https://files.catbox.moe/9icef9.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: CHOOSE WIFE / FRIENDS -->
+        <div id="friends-section" style="display: none;">
+            <div class="friends-grid" id="friendsGrid"></div>
+        </div>
+
+        <!-- Legal Sections -->
+        <div class="legal-section" id="disclaimer">
+            <h2>Disclaimer</h2>
+            <p>HellHub operates strictly as a content indexing interface. None of the video files displayed are hosted on our local servers; all media streams are delivered via third-party external hosts. All content is intended exclusively for consenting adults (18+).</p>
+        </div>
+
+        <div class="legal-section" id="privacy">
+            <h2>Privacy Policy</h2>
+            <p>We respect your privacy and do not collect sensitive personal data. Standard cookies and browser local storage are used solely to remember saved video preferences.</p>
+        </div>
+
+        <div class="legal-section" id="about">
+            <h2>About Us</h2>
+            <p>HellHub is a modern digital entertainment portal designed to deliver high-performance, smooth video streaming across mobile and desktop devices with a clean user experience.</p>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#home" onclick="switchMainTab('videos')">Home</a>
+            <a href="#disclaimer">Disclaimer</a>
+            <a href="#privacy">Privacy</a>
+            <a href="#about">About</a>
+        </div>
+        <p>&copy; 2026 HellHub. All Rights Reserved. 18+ Adults Only.</p>
+    </footer>
+
+    <!-- REFERRAL MODAL -->
+    <div id="referral-modal">
+        <div class="referral-box">
+            <div class="referral-big-text">
+                <span class="highlight-red">YOU CURRENTLY HAVE 0 REFERRALS!</span><br><br>
+                SHARE THIS WEBSITE LINK WITH 20 FRIENDS. EACH SHARE GIVES <span class="highlight-gold">+5%</span> (20 USERS = <span class="highlight-gold">100%</span>).<br><br>
+                ONCE YOUR REFERRALS REACH <span class="highlight-gold">100%</span>, YOU CAN TALK TO FRIENDS VIA LIVE VIDEO CALL OR CHAT CALL AND ALSO WIN <span class="highlight-gold">$500 REWARD!</span>
+            </div>
+
+            <div class="progress-label" id="refProgressText">REFERRAL PROGRESS: 0% (0 / 20 USERS)</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="refProgressBar"></div>
+            </div>
+
+            <div class="share-link-box">
+                <div class="share-wrapper">
+                    <input type="text" id="shareUrlInput" class="share-url-input" readonly>
+                    <button class="copy-btn" onclick="copyShareLink()">Copy</button>
+                </div>
+                <button class="share-now-btn" onclick="handleShareWebsite()">SHARE LINK NOW (+5%)</button>
+            </div>
+
+            <button class="close-modal-x" onclick="closeReferralPopup()" title="Close">✕</button>
+        </div>
+    </div>
+
+    <!-- TAB 3: REELS -->
+    <div id="reels-fullscreen-view">
+        <div class="reels-top-bar">
+            <button class="reels-back-btn" onclick="closeReelsView()">← Back</button>
+            <span class="reels-badge">🔥 HellHub Reels</span>
+        </div>
+
+        <div class="reels-feed-container" id="reelsFeedContainer">
+            <div class="reel-slide">
+                <video class="reel-video" playsinline webkit-playsinline loop preload="auto" onclick="toggleReelPlay(this)">
+                    <source src="https://files.catbox.moe/x0d77d.mp4" type="video/mp4">
+                </video>
+                <div class="reel-center-icon">▶</div>
+                <div class="reel-side-actions">
+                    <button class="reel-action-btn" onclick="toggleReelLike(this)"><div class="reel-action-circle">❤️</div><span class="reel-action-label">Like</span></button>
+                    <button class="reel-action-btn" onclick="toggleReelSound()"><div class="reel-action-circle sound-icon">🔊</div><span class="reel-action-label sound-label">Sound</span></button>
+                    <button class="reel-action-btn" onclick="shareReelLink()"><div class="reel-action-circle">➤</div><span class="reel-action-label">Share</span></button>
+                </div>
+                <div class="reel-bottom-gradient">
+                    <span class="reel-creator-tag">@HellHub_Official</span>
+                    <h4>Trending Viral Clip #01</h4>
+                    <p>Swipe up for next reel • Tap screen to pause/play</p>
+                </div>
+                <div class="reel-progress-track"><div class="reel-progress-fill"></div></div>
+            </div>
+
+            <div class="reel-slide">
+                <video class="reel-video" playsinline webkit-playsinline loop preload="auto" onclick="toggleReelPlay(this)">
+                    <source src="https://files.catbox.moe/aruwwq.mp4" type="video/mp4">
+                </video>
+                <div class="reel-center-icon">▶</div>
+                <div class="reel-side-actions">
+                    <button class="reel-action-btn" onclick="toggleReelLike(this)"><div class="reel-action-circle">❤️</div><span class="reel-action-label">Like</span></button>
+                    <button class="reel-action-btn" onclick="toggleReelSound()"><div class="reel-action-circle sound-icon">🔊</div><span class="reel-action-label sound-label">Sound</span></button>
+                    <button class="reel-action-btn" onclick="shareReelLink()"><div class="reel-action-circle">➤</div><span class="reel-action-label">Share</span></button>
+                </div>
+                <div class="reel-bottom-gradient">
+                    <span class="reel-creator-tag">@HellHub_Official</span>
+                    <h4>Trending Viral Clip #02</h4>
+                    <p>Swipe up for next reel • Tap screen to pause/play</p>
+                </div>
+                <div class="reel-progress-track"><div class="reel-progress-fill"></div></div>
+            </div>
+
+            <div class="reel-slide">
+                <video class="reel-video" playsinline webkit-playsinline loop preload="auto" onclick="toggleReelPlay(this)">
+                    <source src="https://files.catbox.moe/suz8w6.mp4" type="video/mp4">
+                </video>
+                <div class="reel-center-icon">▶</div>
+                <div class="reel-side-actions">
+                    <button class="reel-action-btn" onclick="toggleReelLike(this)"><div class="reel-action-circle">❤️</div><span class="reel-action-label">Like</span></button>
+                    <button class="reel-action-btn" onclick="toggleReelSound()"><div class="reel-action-circle sound-icon">🔊</div><span class="reel-action-label sound-label">Sound</span></button>
+                    <button class="reel-action-btn" onclick="shareReelLink()"><div class="reel-action-circle">➤</div><span class="reel-action-label">Share</span></button>
+                </div>
+                <div class="reel-bottom-gradient">
+                    <span class="reel-creator-tag">@HellHub_Official</span>
+                    <h4>Trending Viral Clip #03</h4>
+                    <p>Swipe up for next reel • Tap screen to pause/play</p>
+                </div>
+                <div class="reel-progress-track"><div class="reel-progress-fill"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Copy button function
+        function copyShareLink() {
+            const shareInput = document.getElementById('shareUrlInput');
+            shareInput.select();
+            shareInput.setSelectionRange(0, 99999);
+            
+            navigator.clipboard.writeText(shareInput.value).then(() => {
+                alert("Link copied successfully! Now share with friends.");
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // Intro Video Logic
+        const overlay = document.getElementById('intro-overlay');
+        const introVideo = document.getElementById('intro-video');
+
+        function removeIntro() {
+            overlay.classList.add('hidden');
+            introVideo.pause();
+        }
+
+        introVideo.addEventListener('ended', removeIntro);
+        setTimeout(removeIntro, 10000);
+
+        // Main 3 Tabs Switching Logic
+        let reelsMuted = false;
+
+        function switchMainTab(tab) {
+            const videosSec = document.getElementById('videos-section');
+            const friendsSec = document.getElementById('friends-section');
+            const reelsView = document.getElementById('reels-fullscreen-view');
+
+            const btnVideos = document.getElementById('tab-videos-btn');
+            const btnFriends = document.getElementById('tab-friends-btn');
+            const btnReels = document.getElementById('tab-reels-btn');
+
+            btnVideos.classList.remove('active');
+            btnFriends.classList.remove('active');
+            btnReels.classList.remove('active');
+
+            if (tab === 'videos') {
+                videosSec.style.display = 'block';
+                friendsSec.style.display = 'none';
+                reelsView.classList.remove('active');
+                btnVideos.classList.add('active');
+                pauseAllReels();
+            } else if (tab === 'friends') {
+                videosSec.style.display = 'none';
+                friendsSec.style.display = 'block';
+                reelsView.classList.remove('active');
+                btnFriends.classList.add('active');
+                pauseAllReels();
+                pauseAllMainVideos();
+            } else if (tab === 'reels') {
+                btnReels.classList.add('active');
+                reelsView.classList.add('active');
+                pauseAllMainVideos();
+
+                const allReelVideos = document.querySelectorAll('.reel-video');
+                allReelVideos.forEach((vid, idx) => {
+                    vid.muted = reelsMuted;
+                    if (idx === 0) {
+                        vid.currentTime = 0;
+                        vid.play().catch(() => {
+                            vid.muted = true;
+                            reelsMuted = true;
+                            updateSoundIcons();
+                            vid.play().catch(() => {});
+                        });
+                    } else {
+                        vid.pause();
+                        vid.currentTime = 0;
+                    }
+                });
+            }
+        }
+
+        function closeReelsView() {
+            switchMainTab('videos');
+        }
+
+        function pauseAllMainVideos() {
+            document.querySelectorAll('#videos-section video').forEach(v => v.pause());
+        }
+
+        // Search & Save Videos Logic
+        function filterVideos() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.video-card');
+            cards.forEach(card => {
+                const title = card.querySelector('.video-title').textContent.toLowerCase();
+                card.style.display = title.includes(query) ? 'block' : 'none';
+            });
+        }
+
+        let savedList = JSON.parse(localStorage.getItem('hellhub_saved') || '[]');
+
+        function updateSavedButtons() {
+            document.querySelectorAll('.video-card').forEach(card => {
+                const id = card.getAttribute('data-id');
+                const btn = card.querySelector('.save-btn');
+                if (savedList.includes(id)) {
+                    btn.classList.add('saved');
+                    btn.textContent = 'Saved ✓';
+                } else {
+                    btn.classList.remove('saved');
+                    btn.textContent = 'Save';
+                }
+            });
+        }
+
+        function toggleSave(id, btn) {
+            if (savedList.includes(id)) {
+                savedList = savedList.filter(item => item !== id);
+            } else {
+                savedList.push(id);
+            }
+            localStorage.setItem('hellhub_saved', JSON.stringify(savedList));
+            updateSavedButtons();
+        }
+
+        function showAllVideos() {
+            document.getElementById('allBtn').classList.add('active');
+            document.getElementById('savedBtn').classList.remove('active');
+            document.querySelectorAll('.video-card').forEach(card => card.style.display = 'block');
+        }
+
+        function showSavedVideos() {
+            document.getElementById('savedBtn').classList.add('active');
+            document.getElementById('allBtn').classList.remove('active');
+            document.querySelectorAll('.video-card').forEach(card => {
+                const id = card.getAttribute('data-id');
+                card.style.display = savedList.includes(id) ? 'block' : 'none';
+            });
+        }
+
+        updateSavedButtons();
+
+        // 96 Friends Vertical Photos Gallery
+        const friendPhotos = [
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182132_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/input.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181118_Chrome.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183521_Chrome.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181406_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182717_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181738_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183047_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181959_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182428_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183631_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181248_Chrome.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182217_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181522_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182926_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181805_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183727_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181130_Chrome.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182229_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181544_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183058_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181837_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183743_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181418_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182343_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181609_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183125_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181901_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183757_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181430_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182353_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181651_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183157_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181916_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183832_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181455_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182359_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181701_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183219_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182022_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183844_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181751_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182518_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183437_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183923_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182601_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182636_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182646_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/input.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181130_Chrome.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181418_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181522_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181609_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181701_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181805_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181901_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181959_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182132_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182229_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182353_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182518_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182636_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182926_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183058_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183157_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183437_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183631_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183743_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183832_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183923_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181118_Chrome.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181248_Chrome.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181430_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181455_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181544_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181651_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181738_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181751_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181837_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181916_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182022_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182217_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182343_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182359_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182428_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182601_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182646_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_182717_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183047_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183125_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183219_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183521_Chrome.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183727_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183757_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_183844_Google.jpg",
+            "https://raw.githubusercontent.com/userytpro/images4site/main/Screenshot_20261115_181406_Google.jpg"
+        ];
+
+        const friendsGrid = document.getElementById('friendsGrid');
+        friendPhotos.forEach((url, index) => {
+            const card = document.createElement('div');
+            card.className = 'friend-card';
+            card.innerHTML = `
+                <div class="friend-img-wrapper">
+                    <img src="${url}" alt="Friend #${index + 1}" loading="lazy">
+                </div>
+                <button class="talk-btn" onclick="openReferralPopup()">CHOOSE WIFE 👄</button>
+            `;
+            friendsGrid.appendChild(card);
+        });
+
+        // Referral Popup & Share Logic
+        let referralPercent = parseInt(localStorage.getItem('hellhub_ref_percent') || '0', 10);
+        if (referralPercent > 100) referralPercent = 100;
+
+        function updateReferralUI() {
+            const bar = document.getElementById('refProgressBar');
+            const label = document.getElementById('refProgressText');
+            const usersCount = Math.floor(referralPercent / 5);
+
+            bar.style.width = referralPercent + '%';
+            label.textContent = `REFERRAL PROGRESS: ${referralPercent}% (${usersCount} / 20 USERS)`;
+        }
+
+        function openReferralPopup() {
+            const shareInput = document.getElementById('shareUrlInput');
+            shareInput.value = window.location.href;
+            updateReferralUI();
+            document.getElementById('referral-modal').classList.add('active');
+        }
+
+        function closeReferralPopup() {
+            document.getElementById('referral-modal').classList.remove('active');
+        }
+
+        function handleShareWebsite() {
+            const shareUrl = window.location.href;
+            const shareText = "Watch exclusive videos & choose your partner! Join now: " + shareUrl;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'HellHub Portal',
+                    text: shareText,
+                    url: shareUrl
+                }).catch(() => {});
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareUrl);
+                alert("Website link copied! Share it with friends.");
+            }
+
+            if (referralPercent < 100) {
+                referralPercent += 5;
+                if (referralPercent > 100) referralPercent = 100;
+                localStorage.setItem('hellhub_ref_percent', referralPercent.toString());
+                updateReferralUI();
+            }
+        }
+
+        // Reels Scroll Autoplay & Controls
+        const reelsContainer = document.getElementById('reelsFeedContainer');
+
+        function pauseAllReels() {
+            document.querySelectorAll('.reel-video').forEach(video => {
+                video.pause();
+            });
+        }
+
+        function toggleReelPlay(video) {
+            const slide = video.closest('.reel-slide');
+            const centerIcon = slide.querySelector('.reel-center-icon');
+
+            if (video.paused) {
+                video.play();
+                centerIcon.textContent = '▶';
+            } else {
+                video.pause();
+                centerIcon.textContent = '⏸';
+            }
+
+            centerIcon.classList.add('show');
+            setTimeout(() => {
+                centerIcon.classList.remove('show');
+            }, 500);
+        }
+
+        function toggleReelLike(btn) {
+            btn.classList.toggle('liked');
+            const label = btn.querySelector('.reel-action-label');
+            label.textContent = btn.classList.contains('liked') ? 'Liked' : 'Like';
+        }
+
+        function updateSoundIcons() {
+            document.querySelectorAll('.sound-icon').forEach(el => {
+                el.textContent = reelsMuted ? '🔇' : '🔊';
+            });
+            document.querySelectorAll('.sound-label').forEach(el => {
+                el.textContent = reelsMuted ? 'Muted' : 'Sound';
+            });
+        }
+
+        function toggleReelSound() {
+            reelsMuted = !reelsMuted;
+            document.querySelectorAll('.reel-video').forEach(video => {
+                video.muted = reelsMuted;
+            });
+            updateSoundIcons();
+        }
+
+        function shareReelLink() {
+            const shareUrl = window.location.href;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'HellHub Reels',
+                    text: 'Check out this trending reel!',
+                    url: shareUrl
+                }).catch(() => {});
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareUrl);
+                alert('Reel link copied to clipboard!');
+            }
+        }
+
+        document.querySelectorAll('.reel-slide').forEach(slide => {
+            const video = slide.querySelector('video');
+            const fill = slide.querySelector('.reel-progress-fill');
+            video.addEventListener('timeupdate', () => {
+                if (video.duration) {
+                    const percent = (video.currentTime / video.duration) * 100;
+                    fill.style.width = percent + '%';
+                }
+            });
+        });
+
+        const reelObserver = new IntersectionObserver((entries) => {
+            const reelsView = document.getElementById('reels-fullscreen-view');
+            if (!reelsView.classList.contains('active')) return;
+
+            entries.forEach(entry => {
+                const video = entry.target.querySelector('video');
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.65) {
+                    video.muted = reelsMuted;
+                    video.play().catch(() => {
+                        video.muted = true;
+                        reelsMuted = true;
+                        updateSoundIcons();
+                        video.play().catch(() => {});
+                    });
+                } else {
+                    video.pause();
+                    video.currentTime = 0;
+                }
+            });
+        }, {
+            root: reelsContainer,
+            threshold: 0.65
+        });
+
+        document.querySelectorAll('.reel-slide').forEach(slide => {
+            reelObserver.observe(slide);
+        });
+    </script>
+
+</body>
+</html>
